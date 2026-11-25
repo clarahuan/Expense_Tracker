@@ -20,7 +20,7 @@
 | 静态子路径 | 独立 HTTP 子目录运行通过；GitHub Actions 成功发布，正式 Pages URL 与关键资源返回 200；构建只含允许发布文件 | 真机公网使用 |
 | 旧数据 | 已生成 SQLite/JSON/源码备份，原库保持不变；预览确认迁移逻辑与旧接口回归通过 | 本人确认迁移总额 |
 
-命令：`npm test` 当前 44 项通过；`python -m unittest test_server.py` 通过；`python build_static.py` 成功；`git diff --check` 通过。
+命令：`npm test` 当前 45 项通过；`python -m unittest test_server.py` 通过；`python build_static.py` 成功；`git diff --check` 通过。
 
 2.0.1 修复：Data API 地址自动转换、保存按钮下方即时成功/错误提示，已用独立浏览器页面验证。增加默认邮件登录链接的返回处理；自动测试验证了令牌先从地址栏移除、服务端身份验证成功后才持久化会话、无效/过期链接不建立会话。真实邮件发送、URL 白名单和个人项目的登录同步仍需本人完成验证。
 

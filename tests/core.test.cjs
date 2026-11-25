@@ -74,3 +74,10 @@ test('备忘录兼容旧餐饮分类和自动饮食余额名称，总额仍保�
 test('相对日期文本支持跨月昨天与前天，金额和收支保持正确',()=>{
  const p=I.parseText('今天午饭15，昨天地铁4，前天家教收入200',{referenceDate:'2026-03-01'});assert.equal(p.failures.length,0);assert.deepEqual(p.rows.map(r=>r.date.slice(0,10)),['2026-02-27','2026-02-28','2026-03-01']);assert.equal(p.rows[0].type,'income');assert.equal(p.rows[1].cents,400);
 });
+
+test('自定义常用消费保留顺序并可备份，旧设置兼容、重复和非法数据拒绝',()=>{
+ const base={categories:Q.defaultCategories(),rules:[]};assert.equal(Q.validateSettings(base).quickEntries,undefined);
+ const quickEntries=[{name:'地铁',category:'交通'},{name:'饭卡',category:'饮食'}];assert.deepEqual(Q.validateSettings({...base,quickEntries}).quickEntries,quickEntries);assert.deepEqual(Q.validateSettings({...base,quickEntries:[]}).quickEntries,[]);
+ assert.throws(()=>Q.validateSettings({...base,quickEntries:[...quickEntries,quickEntries[0]]}));assert.throws(()=>Q.validateSettings({...base,quickEntries:[{name:'',category:'饮食'}]}));
+ const parsed=I.parseBackup({format:'qingji-backup',version:2,documents:[{kind:'settings',payload:{...base,quickEntries},deleted:false}]});assert.deepEqual(parsed.settings.quickEntries,quickEntries);
+});
