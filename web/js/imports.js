@@ -27,10 +27,11 @@
        rows.push(...details);continue;
      }
      const parts=line.split(/[,，。]/).map(s=>s.trim()).filter(Boolean);
-     for(const part of parts){
+     for(let part of parts){
+       let rowDate=referenceDate;const relative=part.match(/^(今天|昨天|前天)\s*/);if(relative){const base=new Date(referenceDate+'T12:00');base.setDate(base.getDate()-({'今天':0,'昨天':1,'前天':2}[relative[1]]));rowDate=`${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;part=part.slice(relative[0].length);}
        const match=part.match(/^(.+?)\s*(\d+(?:\.\d{1,2})?)\s*元?$/);
        if(!match){failures.push(part+'：未识别到明确的名称和金额');continue;}
-       const row=draft(match[1],match[2],referenceDate+'T'+Q.localDate().slice(11),{rules});
+       const row=draft(match[1],match[2],rowDate+'T'+Q.localDate().slice(11),{rules});
        if(!row.cents)failures.push(part+'：金额无效');else rows.push(row);
      }
    }

@@ -70,3 +70,7 @@ test('备忘录兼容旧餐饮分类和自动饮食余额名称，总额仍保�
  const text=Q.exportMemo([entry({category:'其他',merchant:'饮食（当日余额）',cents:1600}),entry({category:'餐饮',merchant:'饭卡',cents:2000}),entry({category:'交通',merchant:'地铁',cents:400})],'2026-11-01','2026-11-30');
  assert.ok(text.includes('11.25，40（地铁 4）'));assert.ok(!text.includes('当日余额'));assert.ok(!text.includes('饭卡'));assert.ok(text.includes('范围支出合计：40元'));
 });
+
+test('相对日期文本支持跨月昨天与前天，金额和收支保持正确',()=>{
+ const p=I.parseText('今天午饭15，昨天地铁4，前天家教收入200',{referenceDate:'2026-03-01'});assert.equal(p.failures.length,0);assert.deepEqual(p.rows.map(r=>r.date.slice(0,10)),['2026-02-27','2026-02-28','2026-03-01']);assert.equal(p.rows[0].type,'income');assert.equal(p.rows[1].cents,400);
+});

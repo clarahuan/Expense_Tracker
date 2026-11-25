@@ -65,6 +65,7 @@
        await LedgerStore.receive(rows);if(rows.length<500)break;
      }
      const pending=await LedgerStore.read('outbox'),conflicts=await LedgerStore.read('conflicts');
+     if(!pending.length&&!conflicts.length)localStorage.setItem('qj-last-sync-'+original,new Date().toISOString());
      setStatus(conflicts.length?`有 ${conflicts.length} 条冲突待处理`:pending.length?`待同步 ${pending.length} 条`:'已同步');
      root.dispatchEvent(new CustomEvent('ledger-updated'));
    }catch(e){setStatus('同步失败：'+e.message);}finally{busy=false;}

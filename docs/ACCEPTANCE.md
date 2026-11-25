@@ -20,10 +20,12 @@
 | 静态子路径 | 独立 HTTP 子目录运行通过；GitHub Actions 成功发布，正式 Pages URL 与关键资源返回 200；构建只含允许发布文件 | 真机公网使用 |
 | 旧数据 | 已生成 SQLite/JSON/源码备份，原库保持不变；预览确认迁移逻辑与旧接口回归通过 | 本人确认迁移总额 |
 
-命令：`npm test` 当前 43 项通过；`python -m unittest test_server.py` 通过；`python build_static.py` 成功；`git diff --check` 通过。
+命令：`npm test` 当前 44 项通过；`python -m unittest test_server.py` 通过；`python build_static.py` 成功；`git diff --check` 通过。
 
 2.0.1 修复：Data API 地址自动转换、保存按钮下方即时成功/错误提示，已用独立浏览器页面验证。增加默认邮件登录链接的返回处理；自动测试验证了令牌先从地址栏移除、服务端身份验证成功后才持久化会话、无效/过期链接不建立会话。真实邮件发送、URL 白名单和个人项目的登录同步仍需本人完成验证。
 
 测试截图位于本机 `data/qa-mobile-home.jpg` 和 `data/qa-mobile-stats.jpg`，全部为隔离预览来源上的模拟账单，不提交到 GitHub。真实账本及备份均排除在 Git 和静态部署包之外。
 
 GitHub 推送与 Pages 发布已获本人授权并完成。后续仍需本人创建免费 Supabase 项目、执行 SQL、配置个人验证码登录、完成真实跨设备与权限验收，以及提供脱敏账单样本。不能把尚未验证的云端功能标为通过。
+
+2.1.0 新增操作已做语法和回归检查，常用消费、连续保存、分类记忆与批次撤销仍需手机实际体验确认。
