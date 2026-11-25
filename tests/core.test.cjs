@@ -65,3 +65,8 @@ test('备忘录饮食只计入总额，全饮食不带括号，混合明细可�
  assert.ok(text.includes('11.24，12.88\n'));assert.ok(text.includes('11.25，19（地铁 4）'));assert.ok(!text.includes('午饭'));assert.ok(!text.includes('外卖'));assert.ok(text.includes('范围支出合计：31.88元'));
  const daily=text.split('\n').filter(s=>/^11\.\d+，/.test(s)).join('\n');const parsed=I.parseText(daily,{referenceDate:'2026-11-25'});assert.equal(parsed.failures.length,0);assert.equal(parsed.rows.reduce((n,e)=>n+e.cents,0),3188);
 });
+
+test('备忘录兼容旧餐饮分类和自动饮食余额名称，总额仍保留',()=>{
+ const text=Q.exportMemo([entry({category:'其他',merchant:'饮食（当日余额）',cents:1600}),entry({category:'餐饮',merchant:'饭卡',cents:2000}),entry({category:'交通',merchant:'地铁',cents:400})],'2026-11-01','2026-11-30');
+ assert.ok(text.includes('11.25，40（地铁 4）'));assert.ok(!text.includes('当日余额'));assert.ok(!text.includes('饭卡'));assert.ok(text.includes('范围支出合计：40元'));
+});

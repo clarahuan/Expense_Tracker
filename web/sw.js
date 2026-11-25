@@ -1,9 +1,9 @@
 'use strict';
-const VERSION='qingji-2.0.4-20261125-a';
+const VERSION='qingji-2.0.5-20261125-a';
 const CORE=['./','./index.html','./mobile.css','./icon.svg','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./receipt-parser.js','./js/core.js','./js/store.js','./js/cloud.js','./js/imports.js','./js/finance-app.js','./vendor/xlsx.full.min.js'];
 const BASE=new URL('./',self.location.href).href;
 const URLS=new Set(CORE.map(p=>new URL(p,BASE).href));
-self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(CORE))));
+self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(CORE.map(path=>new Request(path,{cache:'reload'}))))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('qingji-')&&name!==VERSION)await caches.delete(name);await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting();});
 self.addEventListener('fetch',event=>{
