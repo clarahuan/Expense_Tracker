@@ -36,7 +36,7 @@
      for(const month of months){
        const monthly=typed.filter(e=>e.date.startsWith(month));lines.push(`${month.slice(0,4)}年${Number(month.slice(5))}月：`);
        const days=[...new Set(monthly.map(e=>e.date.slice(0,10)))];
-       for(const day of days){const daily=monthly.filter(e=>e.date.startsWith(day));const total=daily.reduce((n,e)=>n+e.cents,0);lines.push(`${Number(day.slice(5,7))}.${Number(day.slice(8))}，${amount(total)}（${daily.map(e=>label(e)+' '+amount(e.cents)).join('，')}）`);}
+       for(const day of days){const daily=monthly.filter(e=>e.date.startsWith(day));const total=daily.reduce((n,e)=>n+e.cents,0);const details=daily.filter(e=>type!=='expense'||e.category!=='饮食').map(e=>label(e)+' '+amount(e.cents));lines.push(`${Number(day.slice(5,7))}.${Number(day.slice(8))}，${amount(total)}${details.length?'（'+details.join('，')+'）':''}`);}
        lines.push(`${Number(month.slice(5))}月${type==='expense'?'支出':'收入'}小计：${amount(monthly.reduce((n,e)=>n+e.cents,0))}元`);
      }
    }

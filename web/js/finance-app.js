@@ -1,6 +1,6 @@
 'use strict';
 const $=id=>document.getElementById(id), E=Q.esc;
-const VERSION='2.0.3', SETTINGS_ID='00000000-0000-4000-8000-000000000001';
+const VERSION='2.0.4', SETTINGS_ID='00000000-0000-4000-8000-000000000001';
 let docs=[],entries=[],settings={categories:Q.defaultCategories(),rules:[]},pending=[],conflicts=[];
 let month=Q.localDate().slice(0,7),page='home',editing=null,entryType='expense',entryCategory='饮食';
 let filter={...Q.monthRange(month),type:'',category:'',method:'',search:''},selectedIds=new Set(),statPeriod='month',customRange=Q.monthRange(month),importRows=[],restoreSettings=null,fileMatrix=null,fileMapping=null,importBusy=false,ocrWorker=null,waitingWorker=null;

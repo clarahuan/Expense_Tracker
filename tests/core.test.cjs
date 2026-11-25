@@ -46,15 +46,22 @@ test('SheetJS 本地库可解析 Excel 文件',()=>{
 test('备份中的不安全分类 ID 被拒绝，回收站记录保留删除标识',()=>{const settings={categories:Q.defaultCategories(),rules:[]};assert.equal(Q.validateSettings(settings).categories.length,15);settings.categories[0].id='bad" onclick="alert(1)';assert.throws(()=>Q.validateSettings(settings));const data=I.parseBackup({format:'qingji-backup',version:2,documents:[{id:'123',kind:'entry',deleted:true,payload:entry()}]});assert.equal(data.rows[0].was_deleted,true);});
 
 test('备忘录按日期和月份汇总，收入单列，排除范围外和已删除记录',()=>{
- const rows=[entry({date:'2026-12-01T12:00',cents:2000,merchant:'订阅'}),entry({date:'2026-11-02T13:00',cents:29,merchant:'小食'}),entry({date:'2026-11-02T12:00',cents:400,merchant:'地铁'}),entry({type:'income',cents:50000,merchant:'家教收入'}),entry({deleted:true,cents:99999}),entry({date:'2025-11-01T12:00',cents:99999})];
+ const rows=[entry({date:'2026-12-01T12:00',cents:2000,merchant:'订阅'}),entry({date:'2026-11-02T13:00',cents:29,merchant:'小食'}),entry({date:'2026-11-02T12:00',cents:400,merchant:'地铁',category:'交通'}),entry({type:'income',cents:50000,merchant:'家教收入'}),entry({deleted:true,cents:99999}),entry({date:'2025-11-01T12:00',cents:99999})];
  const text=Q.exportMemo(rows,'2026-11-01','2026-12-01');
- assert.ok(text.includes('11.2，4.29（地铁 4，小食 0.29）'));
+ assert.ok(text.includes('11.2，4.29（地铁 4）'));
  assert.ok(text.indexOf('11.2，')<text.indexOf('12.1，'));
  assert.ok(text.includes('2026年12月：'));assert.ok(text.includes('范围支出合计：24.29元'));assert.ok(text.includes('范围收入合计：500元'));assert.ok(text.includes('收入（单独列出，不计入支出）：'));
  assert.equal(Q.exportMemo(rows,'2024-01-01','2024-01-31'),'');
 });
 test('备忘录明细清理换行和分隔符，明确金额可按历史格式核对',()=>{
- const text=Q.exportMemo([entry({merchant:'咖啡（店）\n拿铁，热',cents:1230})],'2026-11-01','2026-11-30');
+ const text=Q.exportMemo([entry({merchant:'商店（分店）\n用品，纸',category:'日用品',cents:1230})],'2026-11-01','2026-11-30');
  const line=text.split('\n').find(s=>s.startsWith('11.25，'));
  const parsed=I.parseText(line,{referenceDate:'2026-11-25'});assert.equal(parsed.failures.length,0);assert.equal(parsed.rows.length,1);assert.equal(parsed.rows[0].cents,1230);
+});
+
+test('备忘录饮食只计入总额，全饮食不带括号，混合明细可还原支出总额',()=>{
+ const rows=[entry({merchant:'午饭',cents:1500}),entry({merchant:'地铁',category:'交通',cents:400}),entry({merchant:'外卖',date:'2026-11-24T12:00',cents:1288})];
+ const text=Q.exportMemo(rows,'2026-11-01','2026-11-30');
+ assert.ok(text.includes('11.24，12.88\n'));assert.ok(text.includes('11.25，19（地铁 4）'));assert.ok(!text.includes('午饭'));assert.ok(!text.includes('外卖'));assert.ok(text.includes('范围支出合计：31.88元'));
+ const daily=text.split('\n').filter(s=>/^11\.\d+，/.test(s)).join('\n');const parsed=I.parseText(daily,{referenceDate:'2026-11-25'});assert.equal(parsed.failures.length,0);assert.equal(parsed.rows.reduce((n,e)=>n+e.cents,0),3188);
 });
