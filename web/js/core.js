@@ -23,6 +23,25 @@
  function legacyRows(payload){const rows=Array.isArray(payload)?payload:payload.expenses;if(!Array.isArray(rows))throw Error('不是旧版账单备份');return rows.map(r=>validateEntry({...r,type:'expense',category:oldMap[r.category]||r.category,method:'',source:'legacy',external_id:`legacy:${r.id}`,note:r.note||'',merchant:r.merchant||''}));}
  function csvCell(s){s=String(s??'');if(/^[\s]*[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
  function exportCSV(rows){return '\ufeff'+[['类型','时间','金额（元）','分类','名称','备注','支付方式','原始交易号'],...rows.map(e=>[e.type==='income'?'收入':'支出',e.date,(e.cents/100).toFixed(2),e.category,e.merchant,e.note,e.method,e.external_id])].map(r=>r.map(csvCell).join(',')).join('\r\n');}
- const api={expense,income,palette,now,localDate,uuid,money,esc,cents,validDate,validateEntry,validateSettings,defaultCategories,oldMap,fingerprint,duplicates,inRange,monthRange,stats,classify,legacyRows,exportCSV};
+ function exportMemo(rows,start,end){
+   const selected=rows.filter(e=>!e.deleted&&inRange(e,start,end)).sort((a,b)=>a.date.localeCompare(b.date));
+   if(!selected.length)return '';
+   const amount=n=>(n/100).toFixed(2).replace(/\.?0+$/,'');
+   const label=e=>(e.merchant||e.category||'未命名').replace(/[\r\n,，、()（）]/g,' ').trim();
+   const lines=[`记账记录：${start} 至 ${end}`];
+   for(const type of ['expense','income']){
+     const typed=selected.filter(e=>e.type===type);if(!typed.length)continue;
+     lines.push('',type==='expense'?'支出：':'收入（单独列出，不计入支出）：');
+     const months=[...new Set(typed.map(e=>e.date.slice(0,7)))];
+     for(const month of months){
+       const monthly=typed.filter(e=>e.date.startsWith(month));lines.push(`${month.slice(0,4)}年${Number(month.slice(5))}月：`);
+       const days=[...new Set(monthly.map(e=>e.date.slice(0,10)))];
+       for(const day of days){const daily=monthly.filter(e=>e.date.startsWith(day));const total=daily.reduce((n,e)=>n+e.cents,0);lines.push(`${Number(day.slice(5,7))}.${Number(day.slice(8))}，${amount(total)}（${daily.map(e=>label(e)+' '+amount(e.cents)).join('，')}）`);}
+       lines.push(`${Number(month.slice(5))}月${type==='expense'?'支出':'收入'}小计：${amount(monthly.reduce((n,e)=>n+e.cents,0))}元`);
+     }
+   }
+   const totals=stats(selected,start,end);lines.push('',`范围支出合计：${amount(totals.outgoing)}元`,`范围收入合计：${amount(totals.incoming)}元`);return lines.join('\n');
+ }
+ const api={expense,income,palette,now,localDate,uuid,money,esc,cents,validDate,validateEntry,validateSettings,defaultCategories,oldMap,fingerprint,duplicates,inRange,monthRange,stats,classify,legacyRows,exportCSV,exportMemo};
  if(typeof module!=='undefined')module.exports=api;else root.Q=api;
 })(typeof window!=='undefined'?window:globalThis);

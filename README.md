@@ -134,3 +134,5 @@ Supabase 默认邮件服务只向项目组织团队成员邮箱发送邮件，�
 ## 源码结构
 
 `web/js/core.js` 为金额/统计/分类，`store.js` 为 IndexedDB/待同步队列，`cloud.js` 为 Auth/REST 同步，`imports.js` 为文本/表格/备份解析，`finance-app.js` 为手机界面。`receipt-parser.js` 保留旧截图解析。`supabase/schema.sql` 为建表、RLS 和带版本检测的写入函数。`web/vendor/` 包含 SheetJS 与许可证；`build_static.py` 只打包允许发布的静态资源。`server.py` 与 `web/legacy.html` 保留旧版兼容。
+
+统计页底部的“导出到备忘录”按当前统计范围生成“日期，总额（名称 金额）”文本，按月分组、收入单列；点击复制后可粘贴到手机备忘录。复制权限不可用时会选中文本供手动复制。文本仅供阅读留存，不替代保留完整字段和设置的 JSON 备份。
