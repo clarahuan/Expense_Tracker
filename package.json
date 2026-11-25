@@ -1,0 +1,14 @@
+{
+  "name": "qingji-personal-ledger",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Static, offline-capable personal income and expense ledger",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs test_receipt_parser.js test_app_flow.js",
+    "build": "python build_static.py"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.6.0",
+    "fake-indexeddb": "6.2.4"
+  }
+}

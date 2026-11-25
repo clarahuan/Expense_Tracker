@@ -36,6 +36,26 @@ class LedgerTest(unittest.TestCase):
                     self.assertEqual(error.exception.code,400)
                 request('/api/expenses/'+entry['id'],method='DELETE')
                 self.assertEqual(request('/api/expenses'),[])
+                early = row | {'date':'2026-09-21T08:15','merchant':'早期消费','cents':1200}
+                later = row | {'date':'2026-10-22T13:30','merchant':'后期消费','cents':2200}
+                # One malformed row must prevent the entire batch from being saved.
+                with self.assertRaises(HTTPError):
+                    request('/api/expenses/batch', {'import_id':'invalid','items':[early,later | {'cents':-1}]}, 'POST')
+                self.assertEqual(request('/api/expenses'), [])
+                payload = {'import_id':'batch-regression','items':[later,early,early]}
+                result = request('/api/expenses/batch',payload,'POST')
+                self.assertEqual(result,{'imported':2,'skipped':1,'total_cents':3400})
+                self.assertEqual([r['date'] for r in request('/api/expenses')], [later['date'],early['date']])
+                # Retry after a lost HTTP response returns the original receipt.
+                self.assertEqual(request('/api/expenses/batch',payload,'POST'),result)
+                self.assertEqual(len(request('/api/expenses')),2)
+                self.assertEqual(request('/api/expenses/batch',{'import_id':'new-batch','items':[early]},'POST')['skipped'],1)
+                with self.assertRaises(HTTPError):
+                    request('/api/expenses/batch',{'import_id':'batch-regression','items':[early]},'POST')
+                for bad in ([], {'import_id':'empty','items':[]}, {'import_id':'too-many','items':[early]*201}):
+                    with self.assertRaises(HTTPError):
+                        request('/api/expenses/batch',bad,'POST')
+                self.assertEqual(len(request('/api/expenses')),2)
                 with urlopen(base) as response:
                     self.assertEqual(response.status,200)
             finally:
