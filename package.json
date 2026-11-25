@@ -1,6 +1,6 @@
 {
   "name": "qingji-personal-ledger",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "Static, offline-capable personal income and expense ledger",
   "scripts": {

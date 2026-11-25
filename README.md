@@ -27,11 +27,11 @@
 2. 新建组织时选择 **Free**。点 **New project**，填写项目名 `qingji`，自己生成并保管数据库密码。选择适合本人网络访问的地区，创建项目。不要升级套餐或开通付费功能。
 3. 项目就绪后，在侧栏打开 **SQL Editor** → **New query**。
 4. 打开本项目 `supabase/schema.sql`，复制全部内容到 SQL Editor，点击 **Run**。应成功创建 `qj_documents`、`qj_mutations` 和 `qj_apply_document`。不要关闭 RLS。
-5. 在 **Authentication → Users** 中，用 **Add user / Create new user** 创建自己的个人邮箱账号。如该控制台流程要求设置密码，由本人自行设置保管；网页本身不收取密码，采用邮箱验证码登录。若界面有自动确认邮箱选项，完成邮箱确认。
+5. 在 **Authentication → Users** 中，用 **Add user / Create new user** 创建自己的个人邮箱账号。如控制台要求设置密码，由本人自行设置保管；网页本身不收取密码，支持默认邮件的 Sign in 登录链接，也兼容邮件验证码。若界面有自动确认邮箱选项，完成邮箱确认。
 6. 在 **Authentication → Sign In / Providers**（或 General configuration）找到 **Allow new users to sign up**，关闭公开注册。保持 Email 登录方式启用，避免把整个 Email provider 关闭。
-7. 在 **Authentication → Email Templates**，找到 **Magic Link** 模板，将邮件正文改成例如 `<p>轻记登录验证码：{{ .Token }}</p>`，保存。邮件应包含验证码，而不只是一个跳转链接。
+7. 保留默认 **Magic link or OTP** 邮件模板即可。当前默认邮件服务可能锁定模板编辑，不需要为了本站去配置自定义 SMTP。在 **Authentication → URL Configuration** 中，将 **Site URL** 设为 `https://clarahuan.github.io/Expense_Tracker/`，**Redirect URLs** 添加 `https://clarahuan.github.io/Expense_Tracker/**`；如要在电脑本机调试，再添加 `http://localhost:8000/**`。这里的通配范围仅限本仓库路径，不要开放任意域名。
 8. 在项目 **Settings / Connect / API Keys** 中，找到 **Project URL** 和 **Publishable key**。若使用旧版密钥，则只选择 `anon`；绝不选择 `secret`、`service_role` 或数据库连接密码。
-9. 打开轻记 → **我的 → 云端连接与登录 → 配置**。填入项目 URL 与公开 key，保存。输入个人邮箱，点发送验证码，在该网页填入邮件验证码并登录。
+9. 建议直接打开公网轻记 → **我的 → 云端连接与登录 → 配置**。填入项目 URL 与公开 key，点击保存；复制来的 Data API `/rest/v1/` 地址也会自动转换为项目根地址，保存结果显示在按钮正下方。输入个人邮箱，点“发送登录邮件”，在邮件中点击 **Sign in** 返回网站完成登录；若模板提供验证码，则展开备用验证码输入框。邮件中的公开连接参数可帮助新浏览器识别项目；认证令牌只出现在 URL fragment，网站验证用户后才建立会话，并先从地址栏移除令牌。不要转发完整登录链接。
 10. 等“我的”页面显示 **已同步**。切换设备后输入相同公开连接信息并登录同一邮箱。连接信息保存在各设备本地，不必把它提交到代码仓库。
 
 公开 key 不是数据库管理凭证，访问控制依靠 SQL 中的 RLS。新账号创建后，可以关闭公开注册，网页发送验证码时也明确禁止自动创建用户。
