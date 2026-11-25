@@ -7,9 +7,20 @@
      const history=line.match(/^(?:(20\d{2})[./年-])?(\d{1,2})[./月-](\d{1,2})日?\s*[,，]\s*(\d+(?:\.\d{1,2})?)\s*(?:元)?\s*(?:\((.*)\))?\s*$/);
      if(history){
        const [,year,m,d,totalText,detail='']=history;const date=`${year||referenceDate.slice(0,4)}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T12:00`;
-       const total=Q.cents(totalText);if(!total||!Q.validDate(date)){failures.push(line+'：日期或总金额无效');continue;}
+       if(!Q.validDate(date)){failures.push(line+'：日期无效');continue;}
+       // A zero-spend day without details is valid, but creates no transaction.
+       if(Number(totalText)===0&&!detail.trim())continue;
+       const total=Q.cents(totalText);if(!total){failures.push(line+'：总金额必须大于零');continue;}
        const details=[],invalid=[];let sum=0;
-       for(const part of detail.split(/[,，、]/).filter(s=>s.trim())){const found=part.trim().match(/^(.+?)\s*(\d+(?:\.\d{1,2})?)\s*元?$/);const value=found&&Q.cents(found[2]);if(!value){invalid.push(part);continue;}sum+=value;details.push(draft(found[1],found[2],date,{rules,type:'expense'}));}
+       const parts=detail.split(/[,，、]/).map(s=>s.trim()).filter(Boolean);
+       // One name without an amount labels the entire day's total, not a food remainder.
+       const namedTotal=parts.length===1&&!/[\d()]/.test(parts[0])&&/\p{L}/u.test(parts[0])&&!/[¥￥]/.test(parts[0]);
+       if(namedTotal){
+         details.push(draft(parts[0],totalText,date,{rules,type:'expense'}));sum=total;
+         details[0].warnings.push('括号内仅有名称，已将当日总额归入这一笔，请核对分类');
+       }else{
+         for(const part of parts){const found=part.match(/^(.+?)\s*(\d+(?:\.\d{1,2})?)\s*元?$/);const value=found&&Q.cents(found[2]);if(!value){invalid.push(part);continue;}sum+=value;details.push(draft(found[1],found[2],date,{rules,type:'expense'}));}
+       }
        if(invalid.length||sum>total){failures.push(line+'：明细无法识别或超过当天总额，请修正后重新解析');continue;}
        if(total>sum)details.push(draft('饮食（当日余额）',((total-sum)/100).toFixed(2),date,{rules,type:'expense',category:'饮食'}));
        for(const row of details){row.note='历史每日总额拆分；原文：'+line;row.warnings.push('时间暂填 12:00，请核对'+(year?'':'；年份取参考年份'));}

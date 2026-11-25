@@ -13,6 +13,18 @@ test('历史每日总额格式精确拆分，不重复计入总额',()=>{
  assert.equal(failures.length,0);assert.equal(rows.reduce((s,r)=>s+r.cents,0),4500);assert.deepEqual(rows.map(r=>[r.category,r.cents]),[['交通',400],['日用品',1100],['饮食',3000]]);
  assert.equal(I.parseText('11.25，10（地铁12）',{referenceDate:'2026-11-25'}).rows.length,0);
 });
+// Synthetic values only: never publish a user's real transactions as fixtures.
+test('括号只有单个名称时，整天总额归入该笔，不产生饮食余额',()=>{
+ for(const text of ['4.8，88.8（GPT Plus）','4.8, 88.80 (GPT Plus)','4.8，88.8（地铁）']){
+  const result=I.parseText(text,{referenceDate:'2026-04-01'});
+  assert.equal(result.failures.length,0);assert.equal(result.rows.length,1);assert.equal(result.rows[0].cents,8880);assert.equal(result.rows[0].date,'2026-04-08T12:00');assert.equal(result.rows[0].type,'expense');assert.ok(!result.rows[0].merchant.includes('当日余额'));
+ }
+ const custom=I.parseText('4.8，88.8（GPT Plus）',{referenceDate:'2026-04-01',rules:[{keyword:'GPT',type:'expense',category:'学习教育'}]});assert.equal(custom.rows[0].category,'学习教育');assert.equal(custom.rows[0].merchant,'GPT Plus');
+});
+test('缺少多笔明细金额时不擅自分摊；零支出日期不生成账单',()=>{
+ for(const text of ['4.8，88.8（咖啡，奶茶）','4.8，88.8（地铁4，奶茶）']){const r=I.parseText(text,{referenceDate:'2026-04-01'});assert.equal(r.rows.length,0);assert.equal(r.failures.length,1);}
+ const zero=I.parseText('4.7，0\n4.8，88.8（GPT Plus）',{referenceDate:'2026-04-01'});assert.equal(zero.failures.length,0);assert.equal(zero.rows.length,1);assert.equal(zero.rows[0].cents,8880);
+});
 test('自然文本区分收入、支出，无法解析的内容报告失败',()=>{
  const {rows,failures}=I.parseText('午饭15元，地铁4元，奶茶8元，家教收入210元。\n不确定多少钱',{referenceDate:'2026-11-25'});assert.equal(rows.length,4);assert.equal(rows.filter(r=>r.type==='income')[0].cents,21000);assert.equal(failures.length,1);
 });
