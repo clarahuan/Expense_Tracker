@@ -1,6 +1,6 @@
 # 轻记 2.0 验收记录
 
-日期：2026-11-25。当前是本地可运行版本，不代表已在 GitHub Pages 或真实 Supabase 项目上线。
+日期：2026-11-25。前端已在 GitHub Pages 发布：https://clarahuan.github.io/Expense_Tracker/ 。GitHub Actions 的测试、打包、部署均成功，公网首页、脚本、样式、Manifest、Service Worker 和图标均返回 HTTP 200。真实 Supabase 项目尚未配置验收。
 
 | 项目 | 已有证据 | 尚待验证 |
 | --- | --- | --- |
@@ -17,11 +17,11 @@
 | 缓存更新 | 浏览器显示“有新版本可用”，点更新后测试账单仍保留 | 正式域名发布后的更新 |
 | 云同步重试与冲突 | IndexedDB 与模拟网络自动测试：未确认不清队列、断网保留、重试确认、保留双方冲突 | 两台真实设备与托管 Supabase |
 | SQL 与 RLS | PGlite 本地 PostgreSQL 环境实际执行 schema，匿名读取与执行拒绝、账号 B 无法读写账号 A、幂等及金额约束通过 | Supabase 实际项目设置、邮件登录、托管 RLS |
-| 静态子路径 | 独立 HTTP 服务器以 `/Expense_Tracker/` 子目录运行，无 Python API 仍可正常使用；构建只含允许发布的文件 | GitHub Actions 与正式 Pages URL |
+| 静态子路径 | 独立 HTTP 子目录运行通过；GitHub Actions 成功发布，正式 Pages URL 与关键资源返回 200；构建只含允许发布文件 | 真机公网使用 |
 | 旧数据 | 已生成 SQLite/JSON/源码备份，原库保持不变；预览确认迁移逻辑与旧接口回归通过 | 本人确认迁移总额 |
 
 命令：`npm test` 当前 33 项通过；`python -m unittest test_server.py` 通过；`python build_static.py` 成功；`git diff --check` 通过。
 
 测试截图位于本机 `data/qa-mobile-home.jpg` 和 `data/qa-mobile-stats.jpg`，全部为隔离预览来源上的模拟账单，不提交到 GitHub。真实账本及备份均排除在 Git 和静态部署包之外。
 
-发布前还需要：本人创建免费 Supabase 项目并执行 SQL、配置个人验证码登录、提供脱敏账单样本、确认 GitHub 推送与 Pages 发布授权。未经这些步骤，不能把所有阶段标为已验收。
+GitHub 推送与 Pages 发布已获本人授权并完成。后续仍需本人创建免费 Supabase 项目、执行 SQL、配置个人验证码登录、完成真实跨设备与权限验收，以及提供脱敏账单样本。不能把尚未验证的云端功能标为通过。

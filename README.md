@@ -2,7 +2,9 @@
 
 ## 当前交付状态
 
-前端已升级为不依赖 Python API 的静态个人账本，适配 GitHub Pages 仓库子路径。页面、IndexedDB、导入、统计、PWA 及同步代码已实现；Supabase 项目尚需本人创建配置，GitHub Pages 尚未发布。不要把本地测试通过理解为公网部署或云端同步已验收。
+前端已发布到 **[轻记公网网站](https://clarahuan.github.io/Expense_Tracker/)**，不再依赖个人电脑开机。GitHub Pages 使用现有公开仓库与 GitHub Actions 自动部署，首页及关键静态资源已验证 HTTP 200。
+
+页面、IndexedDB、导入、统计、PWA 及同步代码已实现；Supabase 项目仍需本人创建配置。当前未配置云端时，账单只保存在当前浏览器，不能把网站发布成功理解为云端同步已验收。旧账单需通过 JSON 或本地迁移预览确认导入，新公网域名不会自动读取 localhost 的数据。
 
 原有 Python/SQLite 服务保留，仅用于旧版页面和数据迁移。新版不会自动上传旧账单。
 
