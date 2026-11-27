@@ -1,6 +1,6 @@
 'use strict';
 const $=id=>document.getElementById(id), E=Q.esc;
-const VERSION='2.1.3', SETTINGS_ID='00000000-0000-4000-8000-000000000001';
+const VERSION='2.1.4', SETTINGS_ID='00000000-0000-4000-8000-000000000001';
 let docs=[],entries=[],settings={categories:Q.defaultCategories(),rules:[]},pending=[],conflicts=[];
 let month=Q.localDate().slice(0,7),page='home',editing=null,entryType='expense',entryCategory='饮食';
 let filter={...Q.monthRange(month),type:'',category:'',method:'',search:''},selectedIds=new Set(),statPeriod='month',customRange=Q.monthRange(month),importRows=[],restoreSettings=null,fileMatrix=null,fileMapping=null,importBusy=false,ocrWorker=null,waitingWorker=null;
@@ -26,7 +26,8 @@ function quickButton(name,category){const e=[...entries].filter(e=>e.type==='exp
 function quickEntries(){return settings.quickEntries??QUICK_DEFAULTS.map(([name,category])=>({name,category}));}
 let quickEditing=null,quickHold=null,quickSuppressUntil=0;
 function openQuickEditor(index=null){quickEditing=index;const q=index===null?null:quickEntries()[index];$('quickName').value=q?.name||'';$('quickCategory').innerHTML=cats('expense').map(c=>option(c.name,c.name,q?.category||'饮食')).join('');$('quickPosition').value=index===null?quickEntries().length+1:index+1;$('quickPosition').max=index===null?quickEntries().length+1:quickEntries().length;$('quickRemove').hidden=index===null;$('quickEditorTitle').textContent=q?'编辑常用消费':'添加常用消费';modal('quickEditor');}
-function frequent(){return `<section class="card frequent-card"><div class="frequent-heading"><h2>常用消费</h2><details class="frequent-more"><summary>更多</summary><div class="frequent-options"><button class="secondary full" data-action="add-quick">添加常用消费</button></div></details></div><p class="hint">轻点记账，长按编辑。</p><div class="frequent-grid">${quickEntries().map(q=>quickButton(q.name,q.category)).join('')}</div></section>`;}
+function frequent(){const list=quickEntries(),visible=list.slice(0,4),extra=list.slice(4);return `<section class="card frequent-card"><h2>常用消费</h2><details class="frequent-more"><summary>更多${extra.length?' · '+extra.length:''}</summary><div class="frequent-options">${extra.length?`<div class="frequent-grid">${extra.map(q=>quickButton(q.name,q.category)).join('')}</div>`:'<p class="hint">暂时没有其他模板。</p>'}<button class="secondary full" data-action="add-quick">添加常用消费</button></div></details><p class="hint">轻点记账，长按编辑；排序前四项显示在首页。</p><div class="frequent-grid frequent-primary">${visible.map(q=>quickButton(q.name,q.category)).join('')}</div></section>`;}
+
 $('quickForm').onsubmit=async event=>{event.preventDefault();try{const name=$('quickName').value.trim(),category=$('quickCategory').value,list=quickEntries().map(q=>({...q}));if(!name)return;if(list.some((q,i)=>i!==quickEditing&&q.name===name))return toast('已有同名常用消费');if(quickEditing!==null)list.splice(quickEditing,1);const position=Math.max(0,Math.min(list.length,Number($('quickPosition').value)-1));list.splice(position,0,{name,category});const next=Q.validateSettings({...settings,quickEntries:list});await changed([{id:SETTINGS_ID,kind:'settings',payload:next}]);closeModal('quickEditor');toast('常用消费已保存');}catch(e){toast(e.message);}};
 $('quickRemove').onclick=async()=>{try{const list=quickEntries().filter((q,i)=>i!==quickEditing);await changed([{id:SETTINGS_ID,kind:'settings',payload:Q.validateSettings({...settings,quickEntries:list})}]);closeModal('quickEditor');toast('已移除快捷项，已有账单保留');}catch(e){toast(e.message);}};
 function cancelQuickHold(){if(quickHold){clearTimeout(quickHold.timer);quickHold=null;}}

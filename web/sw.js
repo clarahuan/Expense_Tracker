@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='qingji-2.1.3-20261125-a';
+const VERSION='qingji-2.1.4-20261127-a';
 const CORE=['./','./index.html','./mobile.css','./icon.svg','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./receipt-parser.js','./js/core.js','./js/store.js','./js/cloud.js','./js/imports.js','./js/finance-app.js','./vendor/xlsx.full.min.js'];
 const BASE=new URL('./',self.location.href).href;
 const URLS=new Set(CORE.map(p=>new URL(p,BASE).href));

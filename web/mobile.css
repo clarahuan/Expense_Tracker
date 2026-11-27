@@ -6,3 +6,5 @@
 @media(max-width:650px){.page-head{flex-wrap:wrap;align-items:center}.page-head>div{flex:1 1 210px;min-width:0}.page-head h1{font-size:1.4rem}.page-head input[type=month]{flex:0 1 150px;max-width:100%;min-width:0}.quick-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.quick-actions button{min-width:0;padding:10px 4px;font-size:.85rem}.income-expense strong{font-size:1rem;overflow-wrap:anywhere}.shell{padding-top:env(safe-area-inset-top)}}
 
 .quick-expense{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+
+.frequent-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 12px}.frequent-card>h2{grid-column:1;grid-row:1}.frequent-more{display:contents}.frequent-more>summary{grid-column:2;grid-row:1;justify-self:end}.frequent-options{position:static;grid-column:1/-1;grid-row:4;max-height:50dvh;overflow-y:auto;box-shadow:none;margin-top:12px;padding:12px}.frequent-card>.hint{grid-column:1/-1;grid-row:2}.frequent-primary{grid-column:1/-1;grid-row:3}.frequent-more:not([open])>.frequent-options{display:none}
