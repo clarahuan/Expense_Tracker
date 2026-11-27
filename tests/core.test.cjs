@@ -81,3 +81,7 @@ test('自定义常用消费保留顺序并可备份，旧设置兼容、重复�
  assert.throws(()=>Q.validateSettings({...base,quickEntries:[...quickEntries,quickEntries[0]]}));assert.throws(()=>Q.validateSettings({...base,quickEntries:[{name:'',category:'饮食'}]}));
  const parsed=I.parseBackup({format:'qingji-backup',version:2,documents:[{kind:'settings',payload:{...base,quickEntries},deleted:false}]});assert.deepEqual(parsed.settings.quickEntries,quickEntries);
 });
+
+test('备忘录同日同名同分类明细合并，跨日期和分类分开，总额不变',()=>{
+ const text=Q.exportMemo([entry({merchant:'打印',category:'学习教育',cents:240}),entry({merchant:'打印',category:'学习教育',cents:120}),entry({merchant:'打印',category:'其他',cents:100}),entry({merchant:'打印',category:'学习教育',date:'2026-11-26T12:00',cents:50})],'2026-11-01','2026-11-30');assert.ok(text.includes('11.25，4.6（打印 3.6，打印 1）'));assert.ok(text.includes('11.26，0.5（打印 0.5）'));assert.ok(text.includes('范围支出合计：5.1元'));
+});
